@@ -1,0 +1,137 @@
+一、名词解释
+    1. UNI 模型：通用型计算病理学基础模型，哈佛/BWH 病理学 Mahmood 实验室 AI 开发
+    2. 特征数据集：切片数据（图像大小为 256 x 256 像素）在 UNI 模型上所表现的特征，就叫特征数据集。针对 UNI 模型也可以叫 Dataset Card for UNI2-h Features
+    3. Dify：是一款开源的大语言模型（LLM）应用开发平台。使开发者可以快速搭建生产级的生成式 AI 应用。
+    4. Hugging Face：开源大模型网站
+    5. Python：一种编程语言，主要用于数据处理，大模型构建数据集等
+    6. Docker：一种容器技术，以最小的资源来运行服务
+
+
+二、已有特征数据集
+    1. CRC-100K-Raw（直肠癌），UNI 团队没有做预训练，我们自己需要做训练，然后产出针对 CRC 的特征数据集
+    2. TCGA，有 33 个类型癌症的特征数据集，参考 《要点信息记录.md》 文档
+    3. CPTAC，有 11 个分类的癌症的特征数据集，参考 《要点信息记录.md》 文档
+    4. PANDA，前列腺癌分级评估特征数据集
+
+三、课题阶段和方向
+    方向：训练医院自己的有研究方向的癌症的特征数据集，用于未来的使用和课题研究
+    阶段：大致需要三个阶段来完成上述方向或者目标
+
+    阶段一（验证阶段）：
+        利用 UNI 模型的已经训练出来的特征数据集，结合本医院的病人病理，来做模型验证。这里选择弥漫性大B细胞淋巴瘤（Diffuse Large B-Cell Lymphoma，代号：TCGA-DLBC）。
+        验证 UNI 模型的特征数据集在分析医院内的病理时，数据准确率是否能达到 UNI 模型宣传的一致
+
+    阶段二（存量数据集应用）：
+        利用 UNI 模型和已有的特征数据集，搭建病理图片分析服务。利用 Dify 搭建数据处理流程，有完善的操作页面。可以根据上传的图片来通过模型匹配出 top-k 的疑似癌症图片。
+        当前只能预测已有的特征数据集涉及到的癌症范围，要想预测其他癌症类型，需要第三阶段的开发
+
+        好处：有页面操作，减轻医生筛选癌症图片压力
+
+    阶段三（扩展特征数据集）：
+        针对没有特征数据集的癌症类型，例如T细胞淋巴瘤下的间变性大细胞淋巴瘤（ALCL），需要人工切片的方式，筛选出具有癌症特征的图片，将这些图片喂到模型中去训练，
+        就可以得到一个针对间变性大细胞淋巴瘤（ALCL）的特征数据集，理论上喂给模型的图片数据越多，未来预测的结果越准确。但前提一定是图片足够准确，拿没有癌症的图片喂给模型
+        来训练数据的话，会导致最后特征数据集精度丢失。
+        
+        好处：
+            1. 减轻医生工人查找可疑癌症区域图片压力，通过模型可以给出一个疑似癌症范围图片，或者癌症方向，节省查找时间和精力
+            2. 缩小癌症具体类型查找范围，减轻患者经济压力
+            3. 未来有数据的情况下可以训练更多的特征数据集，例如血管免疫母细胞性T细胞淋巴瘤（AITL）、血管免疫母细胞性T细胞淋巴瘤（AITL）等等
+
+        挑战：
+            1. 数据标记比较繁琐，需要大量的人工来标记出特定类型癌症的图片训练数据，数据需要足够准确才能保证未来通过模型训练出来的特征数据集精度足够准确。
+            2. 数据量较大的情况下，对于硬件也是挑战，硬件配置过低，会让整个训练过程时间呈指数级增长
+            3. Dify，页面操作的后台服务都需要有服务器的硬件支持
+
+附录、
+    A. 癌症类型分类示例：
+        T细胞淋巴瘤：
+            1. **外周T细胞淋巴瘤，非特指型（PTCL-NOS）**：这是最常见的一种外周T细胞淋巴瘤，具有异质性，通常预后较差。
+            2. **间变性大细胞淋巴瘤（ALCL）**：这包括ALK阳性和ALK阴性两种类型。ALK阳性类型通常在年轻人中发生，预后较好。
+            3. **血管免疫母细胞性T细胞淋巴瘤（AITL）**：这种类型与免疫系统异常有关，常表现为全身性症状。
+            4. **成人T细胞白血病/淋巴瘤（ATLL）**：与HTLV-1病毒感染有关，主要发生在日本和加勒比地区。
+            5. **皮肤T细胞淋巴瘤**：包括菌状脓疱病（Mycosis Fungoides）和Sézary综合征等，以皮肤受累为主。
+            6. **T细胞大颗粒淋巴细胞白血病（T-LGL）**：主要累及血液系统，表现为慢性白血病。
+            7. **结外NK/T细胞淋巴瘤，鼻型**：通常发生在鼻腔和上呼吸道，常见于亚洲人群。
+
+        B细胞淋巴瘤分类：
+            1. **弥漫性大B细胞淋巴瘤（DLBCL）**：最常见的B细胞淋巴瘤类型，具有侵袭性，常需迅速治疗。
+            2. **滤泡性淋巴瘤**：一种生长缓慢的惰性淋巴瘤，常在淋巴结内形成滤泡样结构。
+            3. **慢性淋巴细胞白血病/小淋巴细胞性淋巴瘤（CLL/SLL）**：通常是一种进展缓慢的疾病，CLL多表现于血液，而SLL表现为淋巴结受累。
+            4. **套细胞淋巴瘤（MCL）**：具有侵袭性，因细胞核呈套环状而得名。
+            5. **边缘区淋巴瘤**：包括以下几种亚型：
+               - **脾边缘区淋巴瘤**
+               - **结外边缘区MALT淋巴瘤**（通常与慢性感染或自身免疫性疾病有关）
+               - **结内边缘区淋巴瘤**
+            6. **伯基特淋巴瘤**：一种高度侵袭性的淋巴瘤，常与Epstein-Barr病毒感染相关，快速生长，常见于儿童。
+            7. **原发性中枢神经系统淋巴瘤（PCNSL）**：主要发生在大脑和中枢神经系统中。
+            8. **原发性纵隔大B细胞淋巴瘤（PMBCL）**：常见于年轻女性，发生于胸腺与纵隔。
+            9. **华氏巨球蛋白血症**：也被称为淋巴浆细胞性淋巴瘤，以骨髓中IgM分泌过多为特征。
+
+    B. 存量特征数据集：
+        a. CRC：
+            缩写  英文全称    中文全称
+            ADI Adipose 脂肪组织
+            BACK    Background  背景
+            DEB Debris  组织碎片 / 杂质
+            LYM Lymphocytes 淋巴细胞
+            MUC Mucus   粘液
+            MUS Smooth Muscle   平滑肌
+            NORM    Normal Colon Mucosa 正常结肠黏膜
+            STR Cancer-Associated Stroma    癌相关间质
+            TUM Colorectal Adenocarcinoma Epithelium    结直肠腺癌上皮细胞
+
+        b. TCGA：
+            缩写名称    英文全称    中文全称
+            TCGA-ACC    Adrenocortical Carcinoma    肾上腺皮质癌
+            TCGA-BLCA   Bladder Urothelial Carcinoma    膀胱尿路上皮癌
+            TCGA-BRCA_IDC   Breast Invasive Ductal Carcinoma    乳腺浸润性导管癌
+            TCGA-BRCA_OTHERS    Breast Cancer (Others)  乳腺癌（其他类型）
+            TCGA-CESC   Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma    宫颈鳞状细胞癌及子宫颈腺癌
+            TCGA-CHOL   Cholangiocarcinoma  胆管癌
+            TCGA-COAD   Colon Adenocarcinoma    结肠腺癌
+            TCGA-DLBC   Diffuse Large B-Cell Lymphoma   弥漫性大B细胞淋巴瘤
+            TCGA-ESCA   Esophageal Carcinoma    食管癌
+            TCGA-GBM    Glioblastoma Multiforme 多形性胶质母细胞瘤
+            TCGA-HNSC   Head and Neck Squamous Cell Carcinoma   头颈部鳞状细胞癌
+            TCGA-KICH   Kidney Chromophobe  肾嫌色细胞癌
+            TCGA-KIRC   Kidney Renal Clear Cell Carcinoma   肾透明细胞癌
+            TCGA-KIRP   Kidney Renal Papillary Cell Carcinoma   肾乳头状细胞癌
+            TCGA-LGG    Lower Grade Glioma  低级别胶质瘤
+            TCGA-LIHC   Liver Hepatocellular Carcinoma  肝细胞癌
+            TCGA-LUAD   Lung Adenocarcinoma 肺腺癌
+            TCGA-LUSC   Lung Squamous Cell Carcinoma    肺鳞状细胞癌
+            TCGA-MESO   Mesothelioma    间皮瘤
+            TCGA-OV Ovarian Serous Cystadenocarcinoma   卵巢浆液性囊腺癌
+            TCGA-PAAD   Pancreatic Adenocarcinoma   胰腺腺癌
+            TCGA-PCPG   Pheochromocytoma and Paraganglioma  嗜铬细胞瘤和副神经节瘤
+            TCGA-PRAD   Prostate Adenocarcinoma 前列腺腺癌
+            TCGA-READ   Rectum Adenocarcinoma   直肠腺癌
+            TCGA-SARC   Sarcoma 肉瘤
+            TCGA-SKCM   Skin Cutaneous Melanoma 皮肤黑色素瘤
+            TCGA-STAD   Stomach Adenocarcinoma  胃腺癌
+            TCGA-TGCT   Testicular Germ Cell Tumors 睾丸生殖细胞肿瘤
+            TCGA-THCA   Thyroid Carcinoma   甲状腺癌
+            TCGA-THYM   Thymoma 胸腺瘤
+            TCGA-UCEC   Uterine Corpus Endometrial Carcinoma    子宫内膜癌
+            TCGA-UCS    Uterine Carcinosarcoma  子宫癌肉瘤
+            TCGA-UVM    Uveal Melanoma  葡萄膜黑色素瘤
+
+        c. CPTAC
+            缩写名称    英文全称    中文全称
+            cptac_brca  CPTAC Breast Invasive Carcinoma CPTAC乳腺浸润性癌
+            cptac_ccrcc CPTAC Clear Cell Renal Cell Carcinoma   CPTAC透明细胞肾癌
+            cptac_coad  CPTAC Colon Adenocarcinoma  CPTAC结肠腺癌
+            cptac_gbm   CPTAC Glioblastoma Multiforme   CPTAC多形性胶质母细胞瘤
+            cptac_hnsc  CPTAC Head and Neck Squamous Cell Carcinoma CPTAC头颈部鳞状细胞癌
+            cptac_lscc  CPTAC Lung Squamous Cell Carcinoma  CPTAC肺鳞状细胞癌
+            cptac_luad_part1    CPTAC Lung Adenocarcinoma (Part 1)  CPTAC肺腺癌（第一部分）
+            cptac_luad_part2    CPTAC Lung Adenocarcinoma (Part 2)  CPTAC肺腺癌（第二部分）
+            cptac_ov    CPTAC Ovarian Cancer    CPTAC卵巢癌
+            cptac_pda   CPTAC Pancreatic Ductal Adenocarcinoma  CPTAC胰腺导管腺癌
+            cptac_ucec  CPTAC Uterine Corpus Endometrial Carcinoma  CPTAC子宫内膜癌
+
+        d. PANDA
+            缩写名称    英文全称    中文全称
+            PANDA   Prostate cANcer graDe Assessment    前列腺癌分级评估数据集
+
+
