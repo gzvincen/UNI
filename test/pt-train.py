@@ -1,9 +1,9 @@
 import os
 
-os.environ["LDFLAGS"] = "-L/usr/local/opt/libomp/lib"
-os.environ["CPPFLAGS"] = "-I/usr/local/opt/libomp/include"
-os.environ["DYLD_LIBRARY_PATH"] = "/usr/local/opt/libomp/lib:" + os.environ.get("DYLD_LIBRARY_PATH", "")
-os.environ["OMP_NUM_THREADS"] = "1"
+# os.environ["LDFLAGS"] = "-L/usr/local/opt/libomp/lib"
+# os.environ["CPPFLAGS"] = "-I/usr/local/opt/libomp/include"
+# os.environ["DYLD_LIBRARY_PATH"] = "/usr/local/opt/libomp/lib:" + os.environ.get("DYLD_LIBRARY_PATH", "")
+# os.environ["OMP_NUM_THREADS"] = "1"
 import torch
 import torchvision
 # import os
@@ -72,10 +72,10 @@ def pt_train():
     dataroot = '../assets/data/CRC100K/'
 
     # create some image folder datasets for train/test and their data laoders
-    train_dataset = torchvision.datasets.ImageFolder(j_(dataroot, 'NCT-CRC-HE-100K-NONORM'), transform=transform)
+    # train_dataset = torchvision.datasets.ImageFolder(j_(dataroot, 'NCT-CRC-HE-100K-NONORM'), transform=transform)
     test_dataset = torchvision.datasets.ImageFolder(j_(dataroot, 'CRC-VAL-HE-7K'), transform=transform)
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=256, shuffle=False, num_workers=16)
-    test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=16)
+    # train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=256, shuffle=False, num_workers=16)
+    # test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=16)
 
     # extract patch features from the train and test datasets (returns dictionary of embeddings and labels)
     # train_features = extract_patch_features_from_dataloader(model, train_dataloader)
@@ -162,6 +162,30 @@ def display_img(imgs):
     plt.axis('off')  # 可选，隐藏坐标轴
     plt.show()  # 这是关键，会弹出窗口显示图像
 
+import h5py
+def h5_file_load():
+    h5_file = '/Users/gaozhen/d_pan/chrome_download/TCGA-DLBC/TCGA-FA-8693-01Z-00-DX1.7bef9346-e85d-44c2-aa85-1f5faca9f97e.h5'
+
+    def print_attrs(name, obj):
+        """打印组或数据集的名称和类型"""
+        print(name, type(obj))
+
+    with h5py.File(h5_file, 'r') as file:
+        # 打印 h5 文件中都有哪些属性
+        file.visititems(print_attrs)
+        features = file['features'][:]  # 1 x num_patches x 1536
+        coords = file['coords'][:]  # 1 x num_patches x 2
+        annots = file['annots'][:]
+        coords_patching = file['coords_patching'][:]
+
+    print(features)
+    print("------------------------------------------")
+    print(coords)
+    print("------------------------------------------")
+    print(annots)
+    print("------------------------------------------")
+    print(coords_patching)
 
 if __name__ == '__main__':
     pt_train()
+    # h5_file_load()
